@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AyurSutra - Panchakarma Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f3f0;
+        }
+        .bg-ayurveda-primary { background-color: #4A6A54; }
+        .bg-ayurveda-secondary { background-color: #A0937D; }
+        .text-ayurveda-primary { color: #4A6A54; }
+        .text-ayurveda-accent { color: #D48C46; }
+        .border-ayurveda-primary { border-color: #4A6A54; }
+        .btn-primary {
+            background-color: #4A6A54;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #3b5543;
+        }
+        .btn-secondary {
+            background-color: #D48C46;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #b87535;
+        }
+        .btn-danger {
+            background-color: #e53e3e;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn-danger:hover {
+            background-color: #c53030;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #A0937D; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8e816c; }
+        .timeline-item:last-child .timeline-line { display: none; }
+        .login-bg {
+            background-image: url('https://images.unsplash.com/photo-1544225906-c9ca1a3a3f5a?q=80&w=2574&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .login-tab {
+            cursor: pointer;
+            padding: 0.75rem 0;
+            font-weight: 600;
+            color: #A0937D;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .login-tab.active {
+            color: #4A6A54;
+            border-bottom-color: #4A6A54;
+        }
+        .form-input {
+            background-color: #f7f3f0;
+            border: 1px solid #dcd6d0;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #4A6A54;
+            box-shadow: 0 0 0 2px rgba(74, 106, 84, 0.2);
+        }
+        .toast-area {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 999;
+        }
+        .toast {
+            background: #2f3e35;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 6px 16px rgba(2, 6, 23, 0.16);
+            animation: fadeIn 0.5s, fadeOut 0.5s 4.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+        
+        /* NEW: Styles for patient view navigation */
+        .patient-nav-item {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            color: #A0937D;
+        }
+        .patient-nav-item:hover {
+            background-color: #e9e5e0;
+            color: #4A6A54;
+        }
+        .patient-nav-item.active {
+            background-color: #4A6A54;
+            color: white;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <div id="app" class="min-h-screen">
+
+        <div id="loginView" class="flex min-h-screen">
+            <div class="hidden lg:block w-1/2 login-bg">
+                <div class="flex items-center justify-center h-full bg-black bg-opacity-40">
+                    <div class="text-center text-white p-12">
+                        <h1 class="text-5xl font-bold leading-tight">Embrace Balance. <br> Restore Vitality.</h1>
+                        <p class="mt-4 text-lg max-w-md mx-auto">AyurSutra helps you manage your Panchakarma journey with clarity and ease.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
+                <div class="max-w-md w-full">
+                    <div class="text-center mb-10">
+                        <svg class="mx-auto h-16 w-auto text-ayurveda-primary" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12 11.55C9.64 9.35 6.48 8 3 8v1.5c2.92 0 5.48 1.11 7.5 2.92V11.55zM12 12.45v-1.1c2.02.83 3.58 2.21 4.5 3.92-1.3-.85-2.82-1.42-4.5-1.72z" transform="translate(3, 3.5) scale(0.7)"/></svg>
+                        <h1 class="text-4xl font-bold text-ayurveda-primary mt-4">AyurSutra</h1>
+                        <p class="text-gray-500 mt-2">Authentic Healing, Modern Management</p>
+                    </div>
+                    <div class="flex border-b mb-6">
+                        <div id="practitionerTab" class="w-1/2 text-center login-tab active" onclick="switchLoginView('practitioner')">Practitioner</div>
+                        <div id="patientTab" class="w-1/2 text-center login-tab" onclick="switchLoginView('patient')">Patient</div>
+                    </div>
+                    <form id="practitionerForm" onsubmit="login(event, 'practitioner')">
+                         <div class="space-y-4">
+                            <input id="practitionerLogin" type="text" placeholder="Email or Mobile Number" class="w-full p-3 rounded-lg form-input" required>
+                            <input id="practitionerPassword" type="password" placeholder="Password" class="w-full p-3 rounded-lg form-input" required>
+                            <button type="submit" class="w-full btn-primary font-bold py-3 px-4 rounded-lg shadow-md mt-4">Login as Practitioner</button>
+                         </div>
+                    </form>
+                    <form id="patientForm" class="hidden" onsubmit="login(event, 'patient')">
+                         <div class="space-y-4">
+                            <input id="patientLogin" type="text" placeholder="Email or Mobile Number" class="w-full p-3 rounded-lg form-input" required>
+                            <input id="patientPassword" type="password" placeholder="Password" class="w-full p-3 rounded-lg form-input" required>
+                            <button type="submit" class="w-full btn-secondary font-bold py-3 px-4 rounded-lg shadow-md mt-4">Login as Patient</button>
+                         </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="practitionerView" class="hidden">
+            <header class="bg-white shadow-md sticky top-0 z-10">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-16">
+                        <div class="flex items-center">
+                            <svg class="h-8 w-auto text-ayurveda-primary" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12 11.55C9.64 9.35 6.48 8 3 8v1.5c2.92 0 5.48 1.11 7.5 2.92V11.55zM12 12.45v-1.1c2.02.83 3.58 2.21 4.5 3.92-1.3-.85-2.82-1.42-4.5-1.72z" transform="translate(3, 3.5) scale(0.7)"/></svg>
+                            <span class="text-xl font-bold text-ayurveda-primary ml-2">AyurSutra</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span id="practitionerName" class="mr-4 font-semibold text-gray-600"></span>
+                            <button onclick="logout()" class="text-gray-500 hover:text-ayurveda-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="container mx-auto p-4 sm:p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg">
+                    <div class="flex justify-between items-center mb-4 border-b-2 border-ayurveda-primary pb-2">
+                        <h2 class="text-2xl font-bold text-ayurveda-primary">My Patients</h2>
+                        <button onclick="openAddPatientModal()" class="btn-primary text-sm font-semibold py-1 px-3 rounded-lg flex items-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>Add</button>
+                    </div>
+                    <ul id="patientList" class="space-y-3 max-h-[70vh] overflow-y-auto"></ul>
+                </div>
+                <div id="patientDetailView" class="lg:col-span-2 hidden">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <div class="flex justify-between items-start">
+                             <div>
+                                <h2 id="patientName" class="text-3xl font-bold text-ayurveda-primary"></h2>
+                                <p id="patientEmail" class="text-gray-500"></p>
+                             </div>
+                             <button onclick="openScheduleModal()" class="btn-primary font-semibold py-2 px-4 rounded-lg flex items-center">
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>Schedule Therapy</button>
+                        </div>
+                        <div class="mt-6">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-700">Therapy Schedule & Progress</h3>
+                            <div id="therapySchedule" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+                        </div>
+                    </div>
+                </div>
+                 <div id="selectPatientMessage" class="lg:col-span-2 flex items-center justify-center bg-white p-6 rounded-2xl shadow-lg h-full">
+                    <p class="text-xl text-gray-500">Select a patient to view details.</p>
+                 </div>
+            </main>
+        </div>
+
+        <div id="patientView" class="hidden">
+            <header class="bg-white shadow-md sticky top-0 z-10">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-16">
+                        <div class="flex items-center">
+                            <svg class="h-8 w-auto text-ayurveda-primary" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><path d="M12 11.55C9.64 9.35 6.48 8 3 8v1.5c2.92 0 5.48 1.11 7.5 2.92V11.55zM12 12.45v-1.1c2.02.83 3.58 2.21 4.5 3.92-1.3-.85-2.82-1.42-4.5-1.72z" transform="translate(3, 3.5) scale(0.7)"/></svg>
+                            <span class="text-xl font-bold text-ayurveda-primary ml-2">AyurSutra</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span id="loggedInPatientName" class="mr-4 font-semibold text-gray-600"></span>
+                            <button onclick="logout()" class="text-gray-500 hover:text-ayurveda-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+                <div class="bg-white p-2 rounded-lg shadow-sm mb-8 flex items-center justify-center space-x-2 md:space-x-4">
+                    <div id="patientHomeTab" class="patient-nav-item active" onclick="switchPatientView('home')">Home</div>
+                    <div id="patientScheduleTab" class="patient-nav-item" onclick="switchPatientView('schedule')">My Schedule</div>
+                    <div id="patientProgressTab" class="patient-nav-item" onclick="switchPatientView('progress')">Progress & Feedback</div>
+                </div>
+
+                <div id="patientHomeView">
+                    <h1 class="text-3xl font-bold text-ayurveda-primary mb-6">Welcome to Your Wellness Journey</h1>
+                    <div id="patientNotifications"></div>
+                </div>
+
+                <div id="patientScheduleView" class="hidden">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-ayurveda-primary mb-6">Therapy Timeline</h2>
+                        <div id="patientTherapyList"></div>
+                    </div>
+                </div>
+
+                <div id="patientProgressView" class="hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+                            <h2 class="text-2xl font-bold text-ayurveda-primary mb-4">Overall Progress</h2>
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div id="overallProgressBar" class="bg-ayurveda-accent h-4 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                            </div>
+                            <p id="overallProgressText" class="text-center mt-2 font-medium text-gray-600"></p>
+                        </div>
+                        <aside class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg">
+                            <h2 class="text-2xl font-bold text-ayurveda-primary mb-4">Feedback Analysis</h2>
+                            <p class="text-sm text-gray-500 mb-4">Average rating for each completed therapy type.</p>
+                            <canvas id="progressChart" aria-label="Therapy feedback chart"></canvas>
+                        </aside>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <div id="addPatientModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-lg w-full">
+            <h2 class="text-2xl font-bold mb-6 text-ayurveda-primary">Add New Patient</h2>
+            <form id="addPatientForm">
+                <div class="space-y-4">
+                    <div><label for="newPatientName" class="block text-gray-700 font-medium mb-2">Full Name</label><input type="text" id="newPatientName" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                    <div><label for="newPatientEmail" class="block text-gray-700 font-medium mb-2">Email Address</label><input type="email" id="newPatientEmail" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                    <div><label for="newPatientMobile" class="block text-gray-700 font-medium mb-2">Mobile Number</label><input type="tel" id="newPatientMobile" class="w-full p-2 border border-gray-300 rounded-lg" pattern="[0-9]{10}" placeholder="10-digit mobile number" required></div>
+                    <div><label for="newPatientPassword" class="block text-gray-700 font-medium mb-2">Temporary Password</label><input type="password" id="newPatientPassword" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                </div>
+                <div class="flex justify-end space-x-4 mt-8">
+                    <button type="button" onclick="closeAddPatientModal()" class="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg">Cancel</button>
+                    <button type="submit" class="btn-primary font-semibold py-2 px-6 rounded-lg">Add Patient</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="scheduleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-lg w-full">
+            <h2 class="text-2xl font-bold mb-6 text-ayurveda-primary">Schedule New Therapy</h2>
+            <form id="scheduleForm">
+                <div class="mb-4"><label for="therapyName" class="block text-gray-700 font-medium mb-2">Therapy Name</label><select id="therapyName" class="w-full p-2 border border-gray-300 rounded-lg" required><option value="Abhyanga">Abhyanga (Oil Massage)</option><option value="Shirodhara">Shirodhara (Forehead Oil Flow)</option><option value="Vamana">Vamana (Emesis Therapy)</option><option value="Virechana">Virechana (Purgation Therapy)</option><option value="Basti">Basti (Enema Therapy)</option></select></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div><label for="therapyDate" class="block text-gray-700 font-medium mb-2">Date</label><input type="date" id="therapyDate" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                    <div><label for="therapyTime" class="block text-gray-700 font-medium mb-2">Time</label><input type="time" id="therapyTime" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                </div>
+                <div class="mb-4"><label for="preProcedure" class="block text-gray-700 font-medium mb-2">Pre-Procedure Note</label><input type="text" id="preProcedure" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="e.g., Avoid heavy meals 2 hours before." required></div>
+                <div class="mb-6"><label for="postProcedure" class="block text-gray-700 font-medium mb-2">Post-Procedure Note</label><input type="text" id="postProcedure" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="e.g., Take a warm bath after 1 hour." required></div>
+                <div class="flex justify-end space-x-4"><button type="button" onclick="closeScheduleModal()" class="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg">Cancel</button><button type="submit" class="btn-primary font-semibold py-2 px-6 rounded-lg">Schedule</button></div>
+            </form>
+        </div>
+    </div>
+    <div id="editTherapyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-lg w-full">
+            <h2 class="text-2xl font-bold mb-6 text-ayurveda-primary">Edit Therapy</h2>
+            <form id="editTherapyForm">
+                <input type="hidden" id="editPatientId">
+                <input type="hidden" id="editTherapyId">
+                <div class="mb-4"><label for="editTherapyName" class="block text-gray-700 font-medium mb-2">Therapy Name</label><select id="editTherapyName" class="w-full p-2 border border-gray-300 rounded-lg" required><option value="Abhyanga">Abhyanga (Oil Massage)</option><option value="Shirodhara">Shirodhara (Forehead Oil Flow)</option><option value="Vamana">Vamana (Emesis Therapy)</option><option value="Virechana">Virechana (Purgation Therapy)</option><option value="Basti">Basti (Enema Therapy)</option></select></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div><label for="editTherapyDate" class="block text-gray-700 font-medium mb-2">Date</label><input type="date" id="editTherapyDate" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                    <div><label for="editTherapyTime" class="block text-gray-700 font-medium mb-2">Time</label><input type="time" id="editTherapyTime" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                </div>
+                <div class="mb-4"><label for="editPreProcedure" class="block text-gray-700 font-medium mb-2">Pre-Procedure Note</label><input type="text" id="editPreProcedure" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                <div class="mb-6"><label for="editPostProcedure" class="block text-gray-700 font-medium mb-2">Post-Procedure Note</label><input type="text" id="editPostProcedure" class="w-full p-2 border border-gray-300 rounded-lg" required></div>
+                <div class="flex justify-end space-x-4"><button type="button" onclick="closeEditTherapyModal()" class="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg">Cancel</button><button type="submit" class="btn-primary font-semibold py-2 px-6 rounded-lg">Save Changes</button></div>
+            </form>
+        </div>
+    </div>
+    <div id="feedbackModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 max-w-lg w-full">
+            <h2 class="text-2xl font-bold mb-2 text-ayurveda-primary">Therapy Feedback</h2>
+            <p id="feedbackTherapyName" class="mb-6 text-gray-600"></p>
+            <form id="feedbackForm">
+                <input type="hidden" id="feedbackPatientId"><input type="hidden" id="feedbackTherapyId">
+                <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">How did you feel?</label>
+                    <div class="flex justify-center space-x-4 text-4xl" id="ratingStars">
+                        <span onclick="setRating(1)" class="cursor-pointer text-gray-300">&#9733;</span><span onclick="setRating(2)" class="cursor-pointer text-gray-300">&#9733;</span><span onclick="setRating(3)" class="cursor-pointer text-gray-300">&#9733;</span><span onclick="setRating(4)" class="cursor-pointer text-gray-300">&#9733;</span><span onclick="setRating(5)" class="cursor-pointer text-gray-300">&#9733;</span>
+                    </div>
+                    <input type="hidden" id="ratingValue" required>
+                </div>
+                <div class="mb-6"><label for="feedbackText" class="block text-gray-700 font-medium mb-2">Any additional comments?</label><textarea id="feedbackText" rows="4" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="e.g., The session was very relaxing..." required></textarea></div>
+                <div class="flex justify-end space-x-4"><button type="button" onclick="closeFeedbackModal()" class="bg-gray-200 text-gray-800 font-semibold py-2 px-6 rounded-lg">Cancel</button><button type="submit" class="btn-primary font-semibold py-2 px-6 rounded-lg">Submit Feedback</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastArea" class="toast-area"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // --- MOCK DATA ---
+        let practitioners = [
+          { id: 'doc1', name: 'Dr. Veda Kumar', email: 'dr.veda@ayur.com', mobile: '9876543210', password: 'password123' }
+        ];
+        let patients = [
+          { id: 'p1', name: 'Ananya Sharma', email: 'ananya.sharma@email.com', mobile: '9988776655', password: 'password123', practitionerId: 'doc1', therapies: [
+              { id: 't1', name: 'Abhyanga', date: '2025-09-10', time: '10:00', status: 'Completed', preProcedure: ['Avoid heavy meals 2 hours before.'], postProcedure: ['Take a warm bath after 1 hour.'], feedback: 'Felt very relaxed, and my skin feels rejuvenated.', rating: 5 },
+              { id: 't5', name: 'Basti', date: '2025-09-13', time: '15:00', status: 'Completed', preProcedure: ['Ensure your bowels are clear.'], postProcedure: ['Rest for at least 2 hours after the therapy.'], feedback: 'Procedure was uncomfortable but effective.', rating: 3 },
+              { id: 't2', name: 'Shirodhara', date: '2025-09-17', time: '11:00', status: 'Upcoming', preProcedure: ['Wash your hair thoroughly before the session.'], postProcedure: ['Avoid cold exposure and loud noises for the rest of the day.'], feedback: null, rating: null },
+              { id: 't6', name: 'Abhyanga', date: '2025-09-15', time: '10:00', status: 'Completed', preProcedure: ['Avoid heavy meals 2 hours before.'], postProcedure: ['Take a warm bath after 1 hour.'], feedback: 'Good session.', rating: 4 },
+            ]
+          },
+          { id: 'p2', name: 'Rohan Verma', email: 'rohan.verma@email.com', mobile: '9123456789', password: 'password123', practitionerId: 'doc1', therapies: [
+              { id: 't4', name: 'Basti', date: '2025-09-16', time: '14:00', status: 'Upcoming', preProcedure: ['Ensure your bowels are clear.'], postProcedure: ['Rest for at least 2 hours after the therapy.'], feedback: null, rating: null },
+            ]
+          }
+        ];
+        let selectedPatientId = null;
+        let loggedInPatientId = null;
+        let loggedInPractitionerId = null;
+        let patientChart = null;
+
+        // --- DOM ELEMENTS ---
+        const loginView = document.getElementById('loginView');
+        const practitionerView = document.getElementById('practitionerView');
+        const patientView = document.getElementById('patientView');
+        const practitionerNameEl = document.getElementById('practitionerName');
+        const patientList = document.getElementById('patientList');
+        const patientDetailView = document.getElementById('patientDetailView');
+        const selectPatientMessage = document.getElementById('selectPatientMessage');
+        const patientNameEl = document.getElementById('patientName');
+        const patientEmailEl = document.getElementById('patientEmail');
+        const therapySchedule = document.getElementById('therapySchedule');
+        const loggedInPatientNameEl = document.getElementById('loggedInPatientName');
+        const addPatientModal = document.getElementById('addPatientModal');
+        const addPatientForm = document.getElementById('addPatientForm');
+        const scheduleModal = document.getElementById('scheduleModal');
+        const scheduleForm = document.getElementById('scheduleForm');
+        const editTherapyModal = document.getElementById('editTherapyModal');
+        const editTherapyForm = document.getElementById('editTherapyForm');
+        const feedbackModal = document.getElementById('feedbackModal');
+        const feedbackForm = document.getElementById('feedbackForm');
+        const practitionerTab = document.getElementById('practitionerTab');
+        const patientTab = document.getElementById('patientTab');
+        const practitionerForm = document.getElementById('practitionerForm');
+        const patientForm = document.getElementById('patientForm');
+        const toastArea = document.getElementById('toastArea');
+
+        // NEW: Patient view section elements
+        const patientHomeView = document.getElementById('patientHomeView');
+        const patientScheduleView = document.getElementById('patientScheduleView');
+        const patientProgressView = document.getElementById('patientProgressView');
+        const patientHomeTab = document.getElementById('patientHomeTab');
+        const patientScheduleTab = document.getElementById('patientScheduleTab');
+        const patientProgressTab = document.getElementById('patientProgressTab');
+        const patientNotificationsEl = document.getElementById('patientNotifications');
+        const overallProgressBar = document.getElementById('overallProgressBar');
+        const overallProgressText = document.getElementById('overallProgressText');
+        const patientTherapyListEl = document.getElementById('patientTherapyList');
+        
+        // --- HELPERS ---
+        const formatDate = (dateString) => new Date(dateString + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const formatTime = (timeString) => {
+            if (!timeString) return '';
+            let [hours, minutes] = timeString.split(':');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            return `${hours}:${minutes} ${ampm}`;
+        }
+        
+        const toast = (msg) => {
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            toastArea.appendChild(t);
+            setTimeout(() => t.remove(), 5000);
+        }
+
+        // --- RENDER FUNCTIONS ---
+        const renderPatientList = () => {
+            patientList.innerHTML = '';
+            patients.forEach(patient => {
+                const li = document.createElement('li');
+                const isActive = selectedPatientId === patient.id;
+                li.className = `flex items-center justify-between p-4 rounded-lg transition-all duration-300 ${isActive ? 'bg-ayurveda-primary text-white shadow-lg' : 'bg-gray-100 hover:bg-ayurveda-secondary hover:text-white'}`;
+                li.innerHTML = `
+                    <div class="cursor-pointer flex-grow" onclick="selectPatient('${patient.id}')">
+                        <p class="font-bold text-lg">${patient.name}</p>
+                        <p class="text-sm">${patient.email}</p>
+                    </div>
+                    <button onclick="confirmRemovePatient(event, '${patient.id}', '${patient.name}')" class="ml-4 p-2 rounded-full ${isActive ? 'hover:bg-red-400' : 'text-gray-400 hover:bg-red-200 hover:text-red-600'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>`;
+                patientList.appendChild(li);
+            });
+        };
+
+        const renderPatientDetails = () => {
+            if (!selectedPatientId) {
+                patientDetailView.classList.add('hidden');
+                selectPatientMessage.classList.remove('hidden');
+                return;
+            }
+            patientDetailView.classList.remove('hidden');
+            selectPatientMessage.classList.add('hidden');
+            const patient = patients.find(p => p.id === selectedPatientId);
+            patientNameEl.textContent = patient.name;
+            patientEmailEl.textContent = patient.email;
+            therapySchedule.innerHTML = '';
+            if (patient.therapies.length === 0) {
+                therapySchedule.innerHTML = `<p class="text-gray-500 text-center py-4">No therapies scheduled for this patient.</p>`;
+                return;
+            }
+            patient.therapies.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(therapy => {
+                const therapyCard = document.createElement('div');
+                const statusColor = therapy.status === 'Completed' ? '#10B981' : '#3B82F6';
+                const ratingStars = therapy.rating ? '&#9733;'.repeat(therapy.rating) + '&#9734;'.repeat(5 - therapy.rating) : 'Not rated';
+                therapyCard.className = 'border-l-4 p-4 rounded-r-lg bg-gray-50';
+                therapyCard.style.borderColor = statusColor;
+                therapyCard.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-800">${therapy.name}</h4>
+                            <p class="text-sm text-gray-500 mt-1">${formatDate(therapy.date)} at ${formatTime(therapy.time)}</p>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-xs font-semibold px-2 py-1 rounded-full text-white" style="background-color: ${statusColor};">${therapy.status}</span>
+                            <button onclick="openEditTherapyModal('${patient.id}', '${therapy.id}')" class="ml-3 text-gray-400 hover:text-ayurveda-primary p-1 rounded-full hover:bg-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    ${therapy.status === 'Completed' ? `<div class="mt-3 bg-white p-3 rounded-md border">
+                        <p class="text-sm font-semibold">Feedback: <span class="text-yellow-500 text-lg">${ratingStars}</span></p>
+                        <p class="text-sm text-gray-600 italic">"${therapy.feedback || 'No comments provided.'}"</p></div>` : ''}`;
+                therapySchedule.appendChild(therapyCard);
+            });
+        };
+
+        // MODIFIED: This function now populates all sections, which are then shown/hidden
+        const renderPatientDashboard = () => {
+            const patient = patients.find(p => p.id === loggedInPatientId);
+            if (!patient) return;
+            loggedInPatientNameEl.textContent = patient.name;
+            
+            // 1. Render Home Content
+            patientNotificationsEl.innerHTML = '';
+            const upcomingTherapies = patient.therapies.filter(t => t.status === 'Upcoming').sort((a,b) => new Date(a.date) - new Date(b.date));
+            if (upcomingTherapies.length > 0) {
+                const nextTherapy = upcomingTherapies[0];
+                patientNotificationsEl.innerHTML = `<div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg" role="alert"><p class="font-bold">Upcoming: ${nextTherapy.name} on ${formatDate(nextTherapy.date)}</p><p class="text-sm mt-2"><strong>Pre-procedure:</strong> ${nextTherapy.preProcedure.join(' ')}</p></div>`;
+            } else {
+                 patientNotificationsEl.innerHTML = `<div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg" role="alert"><p class="font-bold">All therapies are complete! 🌿</p><p>You have no upcoming sessions scheduled.</p></div>`;
+            }
+
+            // 2. Render Schedule Content
+            patientTherapyListEl.innerHTML = patient.therapies.length > 0 ? '' : `<p class="text-center text-gray-500 py-4">Your therapy timeline will appear here once scheduled.</p>`;
+            if (patient.therapies.length > 0) {
+                const timelineContainer = document.createElement('div');
+                timelineContainer.className = 'relative pl-6';
+                patient.therapies.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(therapy => {
+                    const item = document.createElement('div');
+                    item.className = 'timeline-item relative pb-8';
+                    let dotColor, iconSVG;
+                    if (therapy.status === 'Completed' && therapy.feedback) {
+                        dotColor = 'bg-green-500';
+                        iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
+                    } else if (therapy.status === 'Completed' && !therapy.feedback) {
+                        dotColor = 'bg-yellow-500';
+                        iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>`;
+                    } else {
+                        dotColor = 'bg-blue-500';
+                        iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                    }
+                    let feedbackSection = '';
+                    if(therapy.status === 'Completed' && therapy.feedback) {
+                        const ratingStars = '&#9733;'.repeat(therapy.rating) + '&#9734;'.repeat(5 - therapy.rating);
+                        feedbackSection = `<div class="mt-4 pt-4 border-t border-gray-100"><p class="text-sm font-semibold mb-1">Your Feedback: <span class="text-yellow-500 text-lg">${ratingStars}</span></p><p class="text-sm text-gray-600 italic bg-gray-50 p-2 rounded-md">"${therapy.feedback}"</p></div>`;
+                    } else if(therapy.status === 'Completed' && !therapy.feedback) {
+                        feedbackSection = `<div class="mt-4 pt-4 border-t border-gray-100"><button onclick="openFeedbackModal('${patient.id}', '${therapy.id}')" class="w-full btn-secondary font-semibold py-2 px-4 rounded-lg">Provide Feedback</button></div>`;
+                    }
+                    item.innerHTML = `<div class="timeline-line absolute left-3 top-4 w-0.5 h-full bg-gray-200"></div><div class="absolute left-0 top-2 w-6 h-6 rounded-full flex items-center justify-center ${dotColor}">${iconSVG}</div>
+                        <div class="ml-10 bg-gray-50/50 p-4 rounded-xl shadow-sm">
+                            <div class="flex justify-between items-start"><div><h3 class="text-lg font-bold text-ayurveda-primary">${therapy.name}</h3><p class="text-sm text-gray-500">${formatDate(therapy.date)} at ${formatTime(therapy.time)}</p></div><span class="text-xs font-bold px-3 py-1 rounded-full ${therapy.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">${therapy.status}</span></div>
+                            <div class="mt-3 space-y-2 text-sm"><p><strong class="font-medium text-gray-700">Before:</strong> ${therapy.preProcedure.join(', ')}</p><p><strong class="font-medium text-gray-700">After:</strong> ${therapy.postProcedure.join(', ')}</p></div>
+                            ${feedbackSection}</div>`;
+                    timelineContainer.appendChild(item);
+                });
+                patientTherapyListEl.appendChild(timelineContainer);
+            }
+
+            // 3. Render Progress Content
+            const completedCount = patient.therapies.filter(t => t.status === 'Completed').length;
+            const totalCount = patient.therapies.length;
+            const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+            overallProgressBar.style.width = `${progress}%`;
+            overallProgressText.textContent = `${completedCount} of ${totalCount} therapies completed.`;
+            renderPatientChart();
+        };
+
+        const renderPatientChart = () => {
+            const patient = patients.find(p => p.id === loggedInPatientId);
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            
+            const feedbackData = {};
+            patient.therapies
+                .filter(t => t.status === 'Completed' && t.rating !== null)
+                .forEach(t => {
+                    if (!feedbackData[t.name]) {
+                        feedbackData[t.name] = { sum: 0, count: 0 };
+                    }
+                    feedbackData[t.name].sum += t.rating;
+                    feedbackData[t.name].count++;
+                });
+            
+            const labels = Object.keys(feedbackData);
+            const data = labels.map(label => feedbackData[label].sum / feedbackData[label].count);
+
+            if (patientChart) {
+                patientChart.destroy();
+            }
+            
+            if (labels.length === 0) {
+                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                 ctx.font = "14px 'Inter', sans-serif";
+                 ctx.fillStyle = '#6b7280';
+                 ctx.textAlign = 'center';
+                 ctx.fillText('No feedback data available for chart.', ctx.canvas.width / 2, 50);
+                 return;
+            }
+
+            patientChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Rating',
+                        data: data,
+                        backgroundColor: 'rgba(212, 140, 70, 0.6)',
+                        borderColor: 'rgba(212, 140, 70, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        };
+        
+        // --- EVENT HANDLERS & LOGIC ---
+        window.switchLoginView = (view) => {
+            practitionerTab.classList.toggle('active', view === 'practitioner');
+            patientTab.classList.toggle('active', view === 'patient');
+            practitionerForm.classList.toggle('hidden', view !== 'practitioner');
+            patientForm.classList.toggle('hidden', view !== 'patient');
+        };
+
+        // NEW: Function to switch between patient dashboard sections
+        window.switchPatientView = (view) => {
+            // Hide all views
+            patientHomeView.classList.add('hidden');
+            patientScheduleView.classList.add('hidden');
+            patientProgressView.classList.add('hidden');
+            // Deactivate all tabs
+            patientHomeTab.classList.remove('active');
+            patientScheduleTab.classList.remove('active');
+            patientProgressTab.classList.remove('active');
+
+            // Show the selected view and activate the corresponding tab
+            if (view === 'home') {
+                patientHomeView.classList.remove('hidden');
+                patientHomeTab.classList.add('active');
+            } else if (view === 'schedule') {
+                patientScheduleView.classList.remove('hidden');
+                patientScheduleTab.classList.add('active');
+            } else if (view === 'progress') {
+                patientProgressView.classList.remove('hidden');
+                patientProgressTab.classList.add('active');
+            }
+        }
+        
+        window.login = (event, userType) => {
+            event.preventDefault();
+            let loginId, password, user;
+            
+            if (userType === 'practitioner') {
+                loginId = document.getElementById('practitionerLogin').value;
+                password = document.getElementById('practitionerPassword').value;
+                user = practitioners.find(p => (p.email === loginId || p.mobile === loginId) && p.password === password);
+                
+                if (user) {
+                    loggedInPractitionerId = user.id;
+                    practitionerNameEl.textContent = user.name;
+                    loginView.classList.add('hidden');
+                    practitionerView.classList.remove('hidden');
+                    renderPatientList();
+                    renderPatientDetails();
+                } else { 
+                    toast('Invalid practitioner credentials.'); 
+                }
+            } else if (userType === 'patient') {
+                loginId = document.getElementById('patientLogin').value;
+                password = document.getElementById('patientPassword').value;
+                user = patients.find(p => (p.email === loginId || p.mobile === loginId) && p.password === password);
+                
+                if (user) {
+                    loggedInPatientId = user.id;
+                    loginView.classList.add('hidden');
+                    patientView.classList.remove('hidden');
+                    renderPatientDashboard();
+                    switchPatientView('home'); // Set initial view to home
+                } else { 
+                    toast('Invalid patient credentials.'); 
+                }
+            }
+        };
+
+        window.logout = () => {
+            selectedPatientId = null;
+            loggedInPatientId = null;
+            loggedInPractitionerId = null;
+            loginView.classList.remove('hidden');
+            practitionerView.classList.add('hidden');
+            patientView.classList.add('hidden');
+            practitionerForm.reset();
+            patientForm.reset();
+            switchLoginView('practitioner');
+        };
+
+        window.selectPatient = (patientId) => {
+            selectedPatientId = patientId;
+            renderPatientList();
+            renderPatientDetails();
+        };
+
+        window.confirmRemovePatient = (event, patientId, patientName) => {
+            event.stopPropagation();
+            if (window.confirm(`Are you sure you want to remove ${patientName}? This action cannot be undone.`)) {
+                removePatient(patientId);
+            }
+        };
+        const removePatient = (patientId) => {
+            patients = patients.filter(p => p.id !== patientId);
+            if (selectedPatientId === patientId) {
+                selectedPatientId = null;
+            }
+            renderPatientList();
+            renderPatientDetails();
+            toast("Patient removed successfully.");
+        };
+
+        // Add Patient Modal Logic
+        window.openAddPatientModal = () => addPatientModal.classList.remove('hidden');
+        window.closeAddPatientModal = () => addPatientModal.classList.add('hidden');
+        addPatientForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newPatient = { 
+                id: 'p' + Date.now(), 
+                name: document.getElementById('newPatientName').value, 
+                email: document.getElementById('newPatientEmail').value, 
+                mobile: document.getElementById('newPatientMobile').value,
+                password: document.getElementById('newPatientPassword').value, 
+                practitionerId: loggedInPractitionerId, 
+                therapies: [] 
+            };
+            patients.push(newPatient);
+            renderPatientList();
+            addPatientForm.reset();
+            closeAddPatientModal();
+            toast("Patient added successfully.");
+        });
+
+        // Schedule Therapy Modal Logic
+        window.openScheduleModal = () => {
+            if (!selectedPatientId) return;
+            scheduleForm.reset();
+            scheduleModal.classList.remove('hidden');
+        };
+        window.closeScheduleModal = () => scheduleModal.classList.add('hidden');
+        scheduleForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const patient = patients.find(p => p.id === selectedPatientId);
+            const newTherapy = { id: 't' + Date.now(), name: document.getElementById('therapyName').value, date: document.getElementById('therapyDate').value, time: document.getElementById('therapyTime').value, status: 'Upcoming', preProcedure: [document.getElementById('preProcedure').value], postProcedure: [document.getElementById('postProcedure').value], feedback: null, rating: null };
+            patient.therapies.push(newTherapy);
+            renderPatientDetails();
+            closeScheduleModal();
+            toast("Therapy scheduled successfully.");
+        });
+
+        // Edit Therapy Modal Logic
+        window.openEditTherapyModal = (patientId, therapyId) => {
+            const patient = patients.find(p => p.id === patientId);
+            const therapy = patient.therapies.find(t => t.id === therapyId);
+            if (!therapy) return;
+            document.getElementById('editPatientId').value = patientId;
+            document.getElementById('editTherapyId').value = therapyId;
+            document.getElementById('editTherapyName').value = therapy.name;
+            document.getElementById('editTherapyDate').value = therapy.date;
+            document.getElementById('editTherapyTime').value = therapy.time;
+            document.getElementById('editPreProcedure').value = therapy.preProcedure.join(', ');
+            document.getElementById('editPostProcedure').value = therapy.postProcedure.join(', ');
+            editTherapyModal.classList.remove('hidden');
+        };
+        window.closeEditTherapyModal = () => editTherapyModal.classList.add('hidden');
+        editTherapyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const patientId = document.getElementById('editPatientId').value;
+            const therapyId = document.getElementById('editTherapyId').value;
+            const patient = patients.find(p => p.id === patientId);
+            const therapy = patient.therapies.find(t => t.id === therapyId);
+            if (therapy) {
+                therapy.name = document.getElementById('editTherapyName').value;
+                therapy.date = document.getElementById('editTherapyDate').value;
+                therapy.time = document.getElementById('editTherapyTime').value;
+                therapy.preProcedure = [document.getElementById('editPreProcedure').value];
+                therapy.postProcedure = [document.getElementById('editPostProcedure').value];
+            }
+            renderPatientDetails();
+            closeEditTherapyModal();
+            toast("Therapy updated successfully.");
+        });
+
+        // Feedback Modal Logic
+        window.openFeedbackModal = (patientId, therapyId) => {
+            feedbackForm.reset();
+            const patient = patients.find(p => p.id === patientId);
+            const therapy = patient.therapies.find(t => t.id === therapyId);
+            document.getElementById('feedbackTherapyName').textContent = `For your ${therapy.name} session on ${formatDate(therapy.date)}`;
+            document.getElementById('feedbackPatientId').value = patientId;
+            document.getElementById('feedbackTherapyId').value = therapyId;
+            setRating(0);
+            feedbackModal.classList.remove('hidden');
+        };
+        window.closeFeedbackModal = () => feedbackModal.classList.add('hidden');
+        window.setRating = (rating) => {
+            document.getElementById('ratingValue').value = rating;
+            document.querySelectorAll('#ratingStars span').forEach((star, index) => {
+                star.classList.toggle('text-yellow-400', index < rating);
+                star.classList.toggle('text-gray-300', index >= rating);
+            });
+        };
+        feedbackForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const patientId = document.getElementById('feedbackPatientId').value;
+            const therapyId = document.getElementById('feedbackTherapyId').value;
+            const therapy = patients.find(p => p.id === patientId)?.therapies.find(t => t.id === therapyId);
+            if (therapy) {
+                therapy.feedback = document.getElementById('feedbackText').value;
+                therapy.rating = parseInt(document.getElementById('ratingValue').value);
+            }
+            // Re-render all patient data and then switch to the progress view to show the updated chart
+            renderPatientDashboard();
+            switchPatientView('progress');
+            closeFeedbackModal();
+            toast("Thank you for your feedback!");
+        });
+    </script>
+</body>
+</html>
